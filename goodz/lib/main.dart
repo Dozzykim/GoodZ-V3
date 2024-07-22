@@ -8,15 +8,6 @@ import 'package:goodz/screen/user/join_screen.dart';
 import 'package:goodz/screen/user/login_screen.dart';
 import 'package:goodz/screen/user/mypage_screen.dart';
 
-import 'main_screen.dart';
-import 'screen/buy/buy_complete_screen.dart';
-import 'screen/buy/buy_screen.dart';
-import 'screen/products/product_detail_screen.dart';
-import 'screen/products/products_screen.dart';
-import 'screen/user/join_screen.dart';
-import 'screen/user/login_screen.dart';
-import 'screen/user/mypage_screen.dart';
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -28,6 +19,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
         useMaterial3: true,
       ),
+      initialRoute: '/main',
       routes: {
         '/main': (context) => MainScreen(),
         '/user/login': (context) => LoginScreen(),
