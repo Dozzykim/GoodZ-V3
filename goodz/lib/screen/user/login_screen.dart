@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goodz/screen/user/purchase_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -79,7 +80,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // 버튼
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              // 임시로 메인화면 진입
+              print("클릭");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PurchaseScreen()
+                )
+              );
+            },
             style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black, // 배경색
                 foregroundColor: Colors.white, // 폰트색
