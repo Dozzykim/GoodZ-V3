@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:goodz/screen/products/products_screen.dart';
+
+import 'package:goodz/screen/user/purchase_screen.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -81,7 +85,10 @@ class _LoginScreenState extends State<LoginScreen> {
           // 버튼
           ElevatedButton(
             onPressed: () {
+
               // ⭐⭐⭐ 로그인 로직 들어가야함
+
+
 
 
               // 임시로 메인화면 진입
@@ -89,7 +96,9 @@ class _LoginScreenState extends State<LoginScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
+
                   builder: (context) => ProductsScreen()
+
                 )
               );
             },
