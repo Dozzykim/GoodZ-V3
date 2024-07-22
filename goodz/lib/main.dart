@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:goodz/home_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:goodz/main_screen.dart';
 import 'package:goodz/screen/buy/buy_complete_screen.dart';
 import 'package:goodz/screen/buy/buy_screen.dart';
@@ -7,6 +9,17 @@ import 'package:goodz/screen/products/products_screen.dart';
 import 'package:goodz/screen/user/join_screen.dart';
 import 'package:goodz/screen/user/login_screen.dart';
 import 'package:goodz/screen/user/mypage_screen.dart';
+import 'package:goodz/provider/user_provider.dart'; // 추가: UserProvider 임포트
+
+void main() {
+  runApp(
+    // ✅✅✅ 프로바이더 추가
+    ChangeNotifierProvider(
+      create: (context) => UserProvider(),
+      child: const MyApp(),
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -22,16 +35,14 @@ class MyApp extends StatelessWidget {
       initialRoute: '/main',
       routes: {
         '/main': (context) => MainScreen(),
+        '/': (context) => HomeScreen(),
         '/user/login': (context) => LoginScreen(),
         '/user/join': (context) => JoinScreen(),
         '/user/mypage': (context) => MyPageScreen(),
         '/products': (context) => ProductsScreen(),
         '/buy': (context) => BuyScreen(),
-        '/buy/complete': (context) => BuyCompleteScreen()
+        '/buy/complete': (context) => BuyCompleteScreen(),
       },
-
-      // 상품상세 페이지 라우트 관련
-      // 상품별로 동적페이지 생성해야함!!!!!
       onGenerateRoute: (settings) {
         if (settings.name == '/products/detail') {
           final arguments = settings.arguments as Map<String, dynamic>;
@@ -53,8 +64,4 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-}
-
-void main() {
-  runApp(const MyApp());
 }

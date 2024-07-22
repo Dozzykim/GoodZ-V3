@@ -1,111 +1,75 @@
 import 'package:flutter/material.dart';
-import 'package:goodz/screen/products/products_screen.dart';
+import 'package:goodz/provider/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: Column(
-        children: [
-          const Text(
-            "로그인",
-            style: TextStyle(fontSize: 32.0),
-          ),
-          const SizedBox(
-            height: 50,
-          ),
-          const TextField(
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: "아이디",
-                hintText: "아이디를 입력해주세요"),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          const TextField(
-            decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: "비밀번호",
-                hintText: "비밀번호를 입력해주세요"),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
+    UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
 
-          // Container(
-          //   padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.center,
-          //     children: [
-          //       // 아이디 저장
-          //       Row(
-          //         children: [
-          //           Checkbox(
-          //               value: false,
-          //               onChanged: (bool? value) {
-          //                 print("아이디 저장 여부 : ${value}");
-          //                 // TODO : state 업데이트
-          //               }),
-          //           const Text("아이디 저장")
-          //         ],
-          //       ),
-          //       // 자동 로그인
-          //       Row(
-          //         children: [
-          //           Checkbox(
-          //               value: false,
-          //               onChanged: (bool? value) {
-          //                 print("자동 로그인 여부 : ${value}");
-          //                 // TODO : state 업데이트
-          //               }),
-          //           const Text("자동 로그인")
-          //         ],
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          // const SizedBox(
-          //   height: 20,
-          // ),
-
-          // 버튼
-          ElevatedButton(
-            onPressed: () {
-              // ⭐⭐⭐ 로그인 로직 들어가야함
-
-
-              // 임시로 메인화면 진입
-              print("클릭");
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProductsScreen()
-                )
-              );
-            },
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black, // 배경색
-                foregroundColor: Colors.white, // 폰트색
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0) // 테두리 곡률
-                    ),
-                // 버튼의 최소 크기 - 가로, 세로 크기
-                // double.infinity : 디바이스의 최대크기로 설정
-                minimumSize: const Size(double.infinity, 40.0)),
-            child: const Text("로그인"),
-          )
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+              ),
+            ),
+            SizedBox(height: 32.0),
+            ElevatedButton(
+              onPressed: () {
+                // 로그인 버튼 클릭
+                _performLogin(userProvider);
+              },
+              child: Text('Login'),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  // 보류
+  void _performLogin(UserProvider userProvider) async {
+    // 여기에 실제 로그인 로직을 구현
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+
+    print('Username: $username');
+    print('Password: $password');
+
+    await userProvider.login(username, password);
+    if (userProvider.isLogin) {
+      print('로그인 여부 : ${userProvider.isLogin}');
+      await userProvider.getUserInfo();
+      print('유저정보 저장 완료...');
+      print(userProvider.userInfo);
+      Navigator.pushReplacementNamed(context, '/');
+    }
   }
 }
