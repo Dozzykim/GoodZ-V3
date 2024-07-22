@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+
+import 'package:goodz/screen/products/products_screen.dart';
+
 import 'package:goodz/screen/user/purchase_screen.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -42,51 +46,59 @@ class _LoginScreenState extends State<LoginScreen> {
             height: 20,
           ),
 
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // 아이디 저장
-                Row(
-                  children: [
-                    Checkbox(
-                        value: false,
-                        onChanged: (bool? value) {
-                          print("아이디 저장 여부 : ${value}");
-                          // TODO : state 업데이트
-                        }),
-                    const Text("아이디 저장")
-                  ],
-                ),
-                // 자동 로그인
-                Row(
-                  children: [
-                    Checkbox(
-                        value: false,
-                        onChanged: (bool? value) {
-                          print("자동 로그인 여부 : ${value}");
-                          // TODO : state 업데이트
-                        }),
-                    const Text("자동 로그인")
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
+          // Container(
+          //   padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       // 아이디 저장
+          //       Row(
+          //         children: [
+          //           Checkbox(
+          //               value: false,
+          //               onChanged: (bool? value) {
+          //                 print("아이디 저장 여부 : ${value}");
+          //                 // TODO : state 업데이트
+          //               }),
+          //           const Text("아이디 저장")
+          //         ],
+          //       ),
+          //       // 자동 로그인
+          //       Row(
+          //         children: [
+          //           Checkbox(
+          //               value: false,
+          //               onChanged: (bool? value) {
+          //                 print("자동 로그인 여부 : ${value}");
+          //                 // TODO : state 업데이트
+          //               }),
+          //           const Text("자동 로그인")
+          //         ],
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // const SizedBox(
+          //   height: 20,
+          // ),
 
           // 버튼
           ElevatedButton(
             onPressed: () {
+
+              // ⭐⭐⭐ 로그인 로직 들어가야함
+
+
+
+
               // 임시로 메인화면 진입
               print("클릭");
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PurchaseScreen()
+
+                  builder: (context) => ProductsScreen()
+
                 )
               );
             },
