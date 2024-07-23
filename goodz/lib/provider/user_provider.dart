@@ -14,7 +14,7 @@ class UserProvider extends ChangeNotifier {
 
   final storage = const FlutterSecureStorage();
 
-  Future<void> login(String username, String password) async {
+  Future<bool> login(String username, String password) async {
     const url = 'http://10.0.2.2:8080/login';
     final requestUrl = Uri.parse('$url?username=$username&password=$password');
     try {
@@ -29,6 +29,8 @@ class UserProvider extends ChangeNotifier {
           print('JWT Token: $jwtToken');
           await storage.write(key: 'jwtToken', value: jwtToken);
           _loginStat = true;
+          notifyListeners();
+          return true;
         } else {
           print('Authorization 헤더가 없습니다.');
         }
@@ -44,7 +46,10 @@ class UserProvider extends ChangeNotifier {
     } catch (error) {
       print("로그인 실패 $error");
     }
+
+    _loginStat = false;
     notifyListeners();
+    return false;
   }
 
   Future<void> getUserInfo() async {
