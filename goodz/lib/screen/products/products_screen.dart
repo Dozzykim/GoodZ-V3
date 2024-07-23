@@ -78,7 +78,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
             onPressed: () {
               Navigator.pushNamed(context, '/');
             },
-            child: const Text('Home으로 돌아가기'),
+            child: const Text('Home'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/user/purchase');
+            },
+            child: const Text('마이페이지'),
           ),
           const SizedBox(height: 16), // Add some space below the button
         ],

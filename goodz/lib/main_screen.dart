@@ -22,12 +22,12 @@ class MainScreen extends StatelessWidget {
               child: const Text('로그인'),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/user/join');
-              },
-              child: const Text('회원가입'),
-            ),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Navigator.pushNamed(context, '/user/join');
+            //   },
+            //   child: const Text('회원가입'),
+            // ),
           ],
         ),
       ),
