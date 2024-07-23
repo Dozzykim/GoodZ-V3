@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -43,7 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 32.0),
             ElevatedButton(
               onPressed: () {
-                // 로그인 버튼 클릭
                 _performLogin(userProvider);
               },
               child: Text('Login'),
@@ -54,22 +54,42 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // 보류
   void _performLogin(UserProvider userProvider) async {
-    // 여기에 실제 로그인 로직을 구현
     String username = _usernameController.text;
     String password = _passwordController.text;
 
     print('Username: $username');
     print('Password: $password');
 
-    await userProvider.login(username, password);
-    if (userProvider.isLogin) {
+    bool loginSuccessful = await userProvider.login(username, password);
+    if (loginSuccessful) {
       print('로그인 여부 : ${userProvider.isLogin}');
       await userProvider.getUserInfo();
       print('유저정보 저장 완료...');
       print(userProvider.userInfo);
-      Navigator.pushReplacementNamed(context, '/');
+      Navigator.pushReplacementNamed(context, '/products');
+    } else {
+      _showLoginErrorDialog();
     }
+  }
+
+  void _showLoginErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Login Failed'),
+          content: Text('아이디 혹은 비밀번호를 다시 확인해주세요.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
