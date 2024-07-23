@@ -27,6 +27,13 @@ class HomeScreen extends StatelessWidget {
                 },
                 child: const Text('로그아웃'),
               ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/products');
+                },
+                child: const Text('상품목록으로 가기'),
+              ),
             ] else ...[
               ElevatedButton(
                 onPressed: () {

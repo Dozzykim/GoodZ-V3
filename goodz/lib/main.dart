@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goodz/screen/user/purchase_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:goodz/main_screen.dart';
 import 'package:goodz/screen/user/join_screen.dart';
@@ -36,8 +37,9 @@ class MyApp extends StatelessWidget {
         '/': (context) => const HomeScreen(), // 로그인 성공 시 홈 화면으로 이동
         '/main': (context) => const MainScreen(),
         '/user/login': (context) => const LoginScreen(),
-        '/user/join': (context) => const JoinScreen(),
+        // '/user/join': (context) => const JoinScreen(),
         '/user/mypage': (context) => const MyPageScreen(),
+        '/user/purchase': (context) => PurchaseScreen(),
         '/products': (context) => const ProductsScreen(),
         '/buy': (context) => const BuyScreen(),
         '/buy/complete': (context) => const BuyCompleteScreen(),

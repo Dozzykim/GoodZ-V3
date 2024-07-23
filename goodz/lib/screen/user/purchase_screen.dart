@@ -83,10 +83,10 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
             IconButton(
               icon: Icon(Icons.shopping_bag),
               onPressed: () {
-                // 구매 내역 화면으로 이동
+                // 상품으로 이동
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  MaterialPageRoute(builder: (context) => Login_Screen()),
                 );
               },
             ),
@@ -150,7 +150,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
 }
 
 // 로그인 화면 예시
-class LoginScreen extends StatelessWidget {
+class Login_Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
