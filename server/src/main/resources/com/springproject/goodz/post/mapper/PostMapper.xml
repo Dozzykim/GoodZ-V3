@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springproject.goodz.post.mapper.PostMapper">
+
+    <resultMap type="Post" id="postMap">
+    <id property="postNo" column="post_no" javaType="int" />
+    <result property="userId" column="user_id" />
+    <result property="nickname" column="nickname" />
+    <result property="profileImgNo" column="profileImgNo" />
+    <result property="content" column="content" />
+    <result property="likeCount" column="likeCount" />
+    <result property="wishCount" column="wishCount" />
+    <collection property="tagList" ofType="Product">
+        <result property="pNo" column="product_no" />
+    </collection>
+</resultMap>
+
+
+    <!-- 전체 게시글 조회 - /styles  -->
+    <select id="list" resultType="post">
+        SELECT  p.post_no,
+            p.user_id,
+            u.nickname,
+            IFNULL(uf.no, 0) as profileImgNo,
+            p.content,
+            f.no as file_no,
+            f.file_name,
+            f.file_path,
+            f.file_code,
+            IFNULL(l.likeCount, 0) as likeCount,
+            IFNULL(w.wishCount, 0) as wishCount
+        FROM post p
+        INNER JOIN user u ON p.user_id = u.user_id
+        LEFT JOIN file f ON p.post_no = f.parent_no AND f.parent_table = 'post' AND f.file_code = 1
+        LEFT JOIN file uf ON u.no = uf.parent_no AND uf.parent_table = 'user'
+        LEFT JOIN (
+            SELECT post_no, COUNT(*) as likeCount
+            FROM `like`
+            GROUP BY post_no
+        ) l ON p.post_no = l.post_no
+        LEFT JOIN (
+            SELECT parent_no, COUNT(*) as wishCount
+            FROM wishlist
+            WHERE parent_table = 'post'
+            GROUP BY parent_no
+        ) w ON p.post_no = w.parent_no
+        ORDER BY p.created_at DESC;
+        <!-- SELECT  p.post_no as post_no
+              , p.user_id as user_id
+              , u.nickname as nickname
+              , u.no as profileImgNo
+              , p.content as contetnt
+              , f.no as file_no
+              , f.file_name as file_name
+              , f.file_path as file_path
+              , f.file_code as file_code
+              , IFNULL((SELECT count(*) from `like` l where l.post_no = p.post_no),0) as likeCount
+              , IFNULL((SELECT count(*) from wishlist w where w.parent_no = p.post_no and w.parent_table = 'post'),0) as wishCount
+        FROM post p
+        INNER JOIN file f on post_no = parent_no and f.parent_table='post' and file_code = 1
+        INNER JOIN user u on p.user_id = u.user_id
+        ORDER BY p.created_at DESC -->
+    </select>
+
+    <!-- 게시글 상세 조회 - /styles/게시글번호  -->
+    <select id="select" resultMap="postMap">
+        <!-- SELECT p.post_no
+             , p.user_id
+             , IFNULL((SELECT no from file f where u.no = f.parent_no and f.parent_table = "user"),0) as profileImgNo
+             , content
+             , IFNULL((SELECT count(*) from `like` l where l.post_no = p.post_no),0) as likeCount
+             , IFNULL((SELECT count(*) from wishlist w where w.parent_no = p.post_no and w.parent_table = 'post'),0) as wishCount
+             , ifNull(t.p_no, null) as product_no
+        FROM post p
+        LEFT OUTER JOIN tag t ON p.post_no = t.post_no
+        INNER JOIN user u on p.user_id = u.user_id
+        WHERE p.post_no = #{postno}; -->
+        SELECT 
+            p.post_no,
+            p.user_id,
+            u.nickname,
+            COALESCE(f.no, 0) AS profileImgNo,
+            p.content,
+            COALESCE(l.likeCount, 0) AS likeCount,
+            COALESCE(w.wishCount, 0) AS wishCount,
+            t.p_no AS product_no
+        FROM post p
+        INNER JOIN user u ON p.user_id = u.user_id
+        LEFT JOIN (
+                    SELECT parent_no, no
+                    FROM file
+                    WHERE parent_table = 'user'
+                ) f ON u.no = f.parent_no
+        LEFT JOIN (
+                    SELECT post_no, COUNT(*) AS likeCount
+                    FROM `like`
+                    GROUP BY post_no
+                ) l ON p.post_no = l.post_no
+        LEFT JOIN (
+                    SELECT parent_no, COUNT(*) AS wishCount
+                    FROM wishlist
+                    WHERE parent_table = 'post'
+                    GROUP BY parent_no
+                ) w ON p.post_no = w.parent_no
+        LEFT JOIN tag t ON p.post_no = t.post_no
+        WHERE p.post_no = #{postno};
+    </select>
+
+
+    <!-- 프로필 유저의 게시글 조회 - /styles/user/@유저닉네임  -->
+    <select id="selectById" resultType="post">
+        SELECT  p.post_no as post_no
+              , p.user_id as user_id
+              , p.content as contetnt
+              , f.no as file_no
+              , f.file_name as file_name
+              , f.file_path as file_path
+              , f.file_code as file_code
+              , IFNULL((SELECT count(*) from `like` l where l.post_no = p.post_no),0) as likeCount
+              , IFNULL((SELECT count(*) from wishlist w where w.parent_no = p.post_no and w.parent_table = 'post'),0) as wishCount
+        FROM post p
+        INNER JOIN file f on post_no = parent_no and f.parent_table='post' and user_id = #{userId} and file_code = 1
+    </select>
+
+    <!-- 최근 등록한 게시글 번호 - 첨부파일 등록 시 필요 -->
+    <select id="maxNo">
+        SELECT max(post_no) as maxNo
+        FROM post
+    </select>
+
+    <!-- 게시글 등록 -->
+    <insert id="insert">
+        INSERT INTO post (user_id, content)
+        VALUES (#{userId}, #{content})
+    </insert>
+
+    <!-- 게시글 수정 -->
+    <update id="update">
+        UPDATE post
+           SET content = #{content}
+        WHERE post_no = #{postNo}
+    </update>
+
+    <!-- 게시글 삭제 -->
+    <delete id="delete">
+        DELETE FROM post
+        WHERE post_no = #{postNo}
+    </delete>
+
+    <!-- 인기게시글 4개 - 메인화면 조회용 -->
+    <select id="popularPosts" resultType="post">
+        <!-- SELECT post_no
+              ,COUNT(*) AS like_count
+        FROM  `like`
+        GROUP BY post_no
+        ORDER BY like_count DESC
+        LIMIT 4; -->
+        SELECT  p.post_no as post_no
+              , p.user_id as user_id
+              , u.nickname as nickname
+              , ifNull((select no from file f where u.no = f.parent_no and parent_table = "user"),0) as profileImgNo
+              , p.content as contetnt
+              , f.no as file_no
+              , f.file_name as file_name
+              , f.file_path as file_path
+              , f.file_code as file_code
+              , IFNULL((SELECT count(*) from `like` l where l.post_no = p.post_no),0) as likeCount
+              , IFNULL((SELECT count(*) from wishlist w where w.parent_no = p.post_no and w.parent_table = 'post'),0) as wishCount
+        FROM post p
+        INNER JOIN file f on post_no = parent_no and f.parent_table='post' and file_code = 1
+        INNER JOIN user u on p.user_id = u.user_id
+        ORDER BY likeCount DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 게시글 조회 (대표이미지파일 번호 포함) - 게시글 번호 기준  -->
+    <select id="taggedPost" resultType="post">
+        SELECT  p.post_no as post_no
+              , p.user_id as user_id
+              , u.nickname as nickname
+              , ifNull((select no from file f where u.no = f.parent_no and parent_table = "user"),0) as profileImgNo
+              , p.content as content
+              , f.no as file_no
+              , f.file_name as file_name
+              , f.file_path as file_path
+              , f.file_code as file_code
+              , IFNULL((SELECT COUNT(*) from `like` l where l.post_no = p.post_no),0) as likeCount
+              , IFNULL((SELECT COUNT(*) from wishlist w where w.parent_no = p.post_no and w.parent_table = 'post'),0) as wishCount
+              , t.p_no
+        FROM post p
+        INNER JOIN file f on post_no = parent_no and f.parent_table='post' and file_code = 1
+        INNER JOIN user u on p.user_id = u.user_id
+        LEFT OUTER JOIN tag t on p.post_no = t.post_no
+		where t.p_no = #{pNo}
+        order by likeCount DESC, p.created_at DESC
+        limit 4;
+    </select>
+</mapper>
