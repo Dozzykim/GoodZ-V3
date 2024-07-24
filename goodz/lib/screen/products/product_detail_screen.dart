@@ -56,7 +56,16 @@ class ProductDetailScreen extends StatelessWidget {
                 onPressed: () {
                   
                   // 구매하기 버튼 클릭 시 처리할 로직을 여기에 작성합니다.
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => BuyScreen()));
+                  Navigator.pushNamed(
+                      context,
+                      '/buy',
+                      arguments: {
+                        'pNo': pNo,
+                        'productName': productName,
+                        'price': price,
+                        'imgUrl': imgUrl,
+                      },
+                  );
 
                 },
                 style: ElevatedButton.styleFrom(

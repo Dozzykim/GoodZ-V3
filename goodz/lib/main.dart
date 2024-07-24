@@ -10,7 +10,6 @@ import 'package:goodz/screen/products/products_screen.dart';
 import 'package:goodz/screen/buy/buy_complete_screen.dart';
 import 'package:goodz/screen/buy/buy_screen.dart';
 import 'package:goodz/screen/products/product_detail_screen.dart';
-import 'package:goodz/screen/user/mypage_screen.dart';
 
 void main() {
   runApp(
@@ -38,10 +37,8 @@ class MyApp extends StatelessWidget {
         '/main': (context) => const MainScreen(),
         '/user/login': (context) => const LoginScreen(),
         // '/user/join': (context) => const JoinScreen(),
-        '/user/mypage': (context) => const MyPageScreen(),
         '/user/purchase': (context) => PurchaseScreen(),
         '/products': (context) => const ProductsScreen(),
-        '/buy': (context) => const BuyScreen(),
         '/buy/complete': (context) => const BuyCompleteScreen(),
       },
       onGenerateRoute: (settings) {
@@ -54,6 +51,21 @@ class MyApp extends StatelessWidget {
 
           return MaterialPageRoute(
             builder: (context) => ProductDetailScreen(
+              pNo: pNo,
+              productName: productName,
+              price: price,
+              imgUrl: imgUrl,
+            ),
+          );
+        } else if (settings.name == '/buy') {
+          final arguments = settings.arguments as Map<String, dynamic>;
+          final pNo = arguments['pNo'] as int;
+          final productName = arguments['productName'] as String;
+          final price = arguments['price'] as int;
+          final imgUrl = arguments['imgUrl'] as String;
+
+          return MaterialPageRoute(
+            builder: (context) => BuyScreen(
               pNo: pNo,
               productName: productName,
               price: price,
