@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goodz/screen/buy/buy_screen.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final int pNo;
@@ -53,8 +54,10 @@ class ProductDetailScreen extends StatelessWidget {
               width: double.infinity, // 화면 가로 너비에 맞게 설정
               child: ElevatedButton(
                 onPressed: () {
+                  
                   // 구매하기 버튼 클릭 시 처리할 로직을 여기에 작성합니다.
-                  // 예: Navigator.push(context, MaterialPageRoute(builder: (context) => BuyScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => BuyScreen()));
+
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color.fromARGB(255, 121, 121, 121), // 버튼 배경색
