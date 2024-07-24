@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:goodz/provider/user_provider.dart';
+import 'package:goodz/screen/products/products_screen.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -45,6 +46,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ElevatedButton(
               onPressed: () {
                 _performLogin(userProvider);
+                // 서버연결 전 임시방편으로 이동처리
+                //  Navigator.push(context, MaterialPageRoute(builder: (context) => ProductsScreen()));
               },
               child: Text('Login'),
             ),
@@ -54,6 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // 로그인 메서드
   void _performLogin(UserProvider userProvider) async {
     String username = _usernameController.text;
     String password = _passwordController.text;
@@ -65,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (loginSuccessful) {
       print('로그인 여부 : ${userProvider.isLogin}');
       await userProvider.getUserInfo();
-      print('유저정보 저장 완료...');
+
       print(userProvider.userInfo);
       Navigator.pushReplacementNamed(context, '/products');
     } else {

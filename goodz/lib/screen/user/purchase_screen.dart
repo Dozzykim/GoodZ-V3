@@ -1,17 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: PurchaseScreen(), // 구매 내역 페이지를 앱의 첫 화면으로 설정
-    );
-  }
-}
+import 'package:goodz/home_screen.dart';
+import 'package:goodz/provider/user_provider.dart';
+import 'package:goodz/screen/products/products_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class PurchaseScreen extends StatefulWidget {
   @override
@@ -19,59 +14,161 @@ class PurchaseScreen extends StatefulWidget {
 }
 
 class _PurchaseScreenState extends State<PurchaseScreen> {
-  // 예시용 구매 내역 데이터
-  List<Map<String, dynamic>> purchaseList = [
-    {
-      'id': 1,
-      'imageUrl': 'https://via.placeholder.com/150',
-      'productName': '상품 A',
-      'price': 30000,
-      'orderedAt': '2023-07-22',
-    },
-    {
-      'id': 2,
-      'imageUrl': 'https://via.placeholder.com/150',
-      'productName': '상품 B',
-      'price': 45000,
-      'orderedAt': '2023-07-20',
-    },
-    {
-      'id': 3,
-      'imageUrl': 'https://via.placeholder.com/150',
-      'productName': '상품 C',
-      'price': 25000,
-      'orderedAt': '2023-07-18',
-    },
-  ];
+  late Future<List<dynamic>> _orderList;
+
+  @override
+  void initState() {
+    super.initState();
+    _orderList = fetchOrderHistory();
+  }
+
+  // fetchOrderHistory 함수 정의
+  Future<List<dynamic>> fetchOrderHistory() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userId = userProvider.userInfo?.userId;
+
+    if (userId == null) {
+      throw Exception('User not logged in');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8080/users/orderHistory?userId=$userId'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+   if (response.statusCode == 200) {
+    List<dynamic> orderList = json.decode(response.body);
+    print('Parsed response: $orderList');
+    return orderList;
+
+  } else {
+    throw Exception('Failed to load order history');
+  }
+
+  }
+
+  // 날짜 문자열을 포맷하는 함수
+  String formatDate(String dateStr) {
+    // print(dateStr);
+    try {
+      final DateTime dateTime = DateTime.parse(dateStr);
+      final DateFormat outputFormat = DateFormat('yyyy-MM-dd');
+      return outputFormat.format(dateTime);
+    } catch (e) {
+      print('Date format error: $e');
+      return dateStr; // 오류 발생 시 원래 문자열 반환
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    String _getImageUrl(int? pno) {
+      print('넘어온 상품번호: $pno');
+      if (pno == null) {
+        return 'image/no-img.jpg'; // 기본 이미지 경로
+      }
+
+      switch (pno) {
+        case 1:
+          return 'image/products/01.jpg';
+        case 2:
+          return 'image/products/02.jpg';
+        case 3:
+          return 'image/products/03.jpg';
+        case 4:
+          return 'image/products/04.jpg';
+        default:
+          return 'image/no-img.jpg'; // 기본 이미지 경로
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('구매 내역'),
       ),
-      body: ListView.builder(
-        itemCount: purchaseList.length,
-        itemBuilder: (context, index) {
-          final purchase = purchaseList[index];
-          return Card(
-            margin: EdgeInsets.all(8.0),
-            child: ListTile(
-              leading: Image.network(
-                purchase['imageUrl'],
-                width: 60,
-                height: 60,
-                fit: BoxFit.cover,
-              ),
-              title: Text(purchase['productName']),
-              subtitle: Text('가격: ${purchase['price']}원'),
-              trailing: Text('주문일: ${purchase['orderedAt']}'),
-              // 구매 취소 버튼 추가
-              onTap: () {
-                _showCancelDialog(purchase); // 구매 취소 다이얼로그 표시
+      body: FutureBuilder<List<dynamic>>(
+        future: _orderList,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Failed to load order history'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No orders found'));
+          } else {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final purchase = snapshot.data![index];
+                final pNo = purchase['pno'] as int?;
+
+                // Debugging: Print pNo to check its value and type
+                // print('pNo: $pNo');
+
+                final imageUrl = _getImageUrl(pNo);
+                final orderedAt = purchase['orderedAt'] as String;
+
+                return Card(
+                  margin: EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Image.asset(
+                              imageUrl,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ),
+                            // SizedBox(width: 16.0),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    purchase['productName'],
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(height: 4.0),
+
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text('${purchase['price']}원', style: TextStyle(fontSize: 16),),
+                                  ),
+
+                                  SizedBox(height: 5.0),
+
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text("${formatDate(orderedAt)}"),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        
+                        // SizedBox(width: 16.0),
+                      ],
+                    ),
+                      // Column(
+                      //   crossAxisAlignment: CrossAxisAlignment.end,
+                      //   children: [
+                      //     Text('주문일: ${purchase['orderedAt']}'),
+                      //   ],
+                      // ),
+                  ),
+                );
               },
-            ),
-          );
+            );
+          }
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -81,23 +178,21 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: Icon(Icons.shopping_bag),
+              icon: Icon(Icons.shopify_sharp),
               onPressed: () {
-                // 상품으로 이동
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Login_Screen()),
+                  MaterialPageRoute(builder: (context) => ProductsScreen()),
                 );
               },
             ),
             IconButton(
-              icon: Icon(Icons.account_circle),
+              icon: Icon(Icons.home),
               onPressed: () {
-                // 유저 정보 화면으로 이동
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => UserProfileScreen()),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                );
               },
             ),
           ],
@@ -106,60 +201,30 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     );
   }
 
-  // 구매 취소 다이얼로그 표시 함수
   void _showCancelDialog(Map<String, dynamic> purchase) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('구매 취소'),
-          content: Text('정말로 이 구매를 취소하시겠습니까?'),
-          actions: <Widget>[
+          content: Text('${purchase['productName']}을(를) 정말로 취소하시겠습니까?'),
+          actions: [
             TextButton(
-              child: Text('취소'),
               onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
+                Navigator.of(context).pop();
               },
+              child: Text('아니요'),
             ),
             TextButton(
-              child: Text('확인'),
               onPressed: () {
-                _cancelPurchase(purchase); // 구매 취소 처리
-                Navigator.of(context).pop(); // 다이얼로그 닫기
+                // 여기에 구매 취소 로직 추가
+                Navigator.of(context).pop();
               },
+              child: Text('예'),
             ),
           ],
         );
       },
-    );
-  }
-
-  // 구매 취소 처리 함수
-  void _cancelPurchase(Map<String, dynamic> purchase) {
-    setState(() {
-      // purchaseList에서 해당 구매 항목 제거
-      purchaseList.removeWhere((item) => item['id'] == purchase['id']);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('구매가 취소되었습니다.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-}
-
-// 로그인 화면 예시
-class Login_Screen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('상품목록'),
-      ),
-      body: Center(
-        child: Text('상품목록'),
-      ),
     );
   }
 }

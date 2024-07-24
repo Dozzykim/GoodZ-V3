@@ -14,6 +14,8 @@ class UserProvider extends ChangeNotifier {
 
   final storage = const FlutterSecureStorage();
 
+
+  // 로그인 처리
   Future<bool> login(String username, String password) async {
     const url = 'http://10.0.2.2:8080/login';
     final requestUrl = Uri.parse('$url?username=$username&password=$password');
@@ -24,6 +26,7 @@ class UserProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         print('로그인 성공...');
         final authorizationHeader = response.headers['authorization'];
+
         if (authorizationHeader != null) {
           final jwtToken = authorizationHeader.replaceFirst('Bearer ', '');
           print('JWT Token: $jwtToken');
